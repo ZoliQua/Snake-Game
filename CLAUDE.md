@@ -14,7 +14,7 @@
   - `npm run lint` — ESLint
   - `npm run test` — Vitest (only if a test setup actually exists)
 - **Grid**: 20 × 20
-- **Tick**: 150 ms
+- **Tick**: derived from speed (1–10 scale; default level 6 = 150 ms). See `src/logic/constants.ts` `SPEED_TICK_MS`.
 - **Controls**: arrow keys + WASD, keyboard only for v1
 - **Rendering**: grid-based DOM (no canvas unless explicitly requested)
 - **Target platform**: desktop browser; mobile/touch is out of scope for v1
@@ -39,7 +39,7 @@ Logic lives outside presentation. Do not bury game rules inside JSX.
 ```
 src/
   logic/
-    constants.ts   # grid size, tick speed, initial state
+    constants.ts   # grid size, speed table (1–10), initial state
     types.ts       # shared types
     snake.ts       # next head, movement, growth helpers
     food.ts        # random spawn, excludes every snake cell
@@ -48,10 +48,12 @@ src/
   hooks/
     useGameLoop.ts           # interval runs only while status === 'running'; no stale closures
     useKeyboardDirection.ts  # arrows + WASD; blocks 180° reversal; single listener; preventDefault on arrows
+    useHighScore.ts          # localStorage-backed best score; recordScore only writes when higher
   components/
     GameBoard.tsx     # grid + snake + food
-    ScoreBoard.tsx    # score + status
+    ScoreBoard.tsx    # score + best + status
     GameControls.tsx  # start / pause / restart
+    SpeedControl.tsx  # 1–10 range slider
     Overlay.tsx       # idle / paused / gameOver
   styles/
   App.tsx
@@ -92,7 +94,7 @@ State machine: `idle → running → paused ↔ running → gameOver → (restar
 
 Required behavior: fixed grid, snake as coordinate array, random food that never spawns on a snake cell, keyboard input with no instant reverse, auto-tick movement, eating grows the snake and increments score, wall and self collisions end the game, full restart resets snake + food + direction + nextDirection + score + status.
 
-Out of scope for v1: speed ramp, levels, high-score persistence, sound, skins, mobile controls. Do not add these unless asked.
+Shipped beyond the original v1 scope: user-controlled speed (1–10 slider, no in-game ramp) and localStorage-backed high score. Still out of scope unless asked: level progression, automatic speed ramp, sound, skins, mobile/touch controls.
 
 ---
 
