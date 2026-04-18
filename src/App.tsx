@@ -3,9 +3,10 @@ import { GameBoard } from './components/GameBoard';
 import { GameControls } from './components/GameControls';
 import { Overlay } from './components/Overlay';
 import { ScoreBoard } from './components/ScoreBoard';
+import { SpeedControl } from './components/SpeedControl';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useKeyboardDirection } from './hooks/useKeyboardDirection';
-import { TICK_MS } from './logic/constants';
+import { DEFAULT_SPEED, tickMsForSpeed } from './logic/constants';
 import { advanceGame, createInitialState } from './logic/game';
 import { isOppositeDirection } from './logic/snake';
 import type { Direction } from './logic/types';
@@ -13,12 +14,13 @@ import styles from './App.module.css';
 
 export default function App() {
   const [state, setState] = useState(createInitialState);
+  const [speed, setSpeed] = useState(DEFAULT_SPEED);
 
   const tick = useCallback(() => {
     setState((prev) => advanceGame(prev));
   }, []);
 
-  useGameLoop(state.status === 'running', TICK_MS, tick);
+  useGameLoop(state.status === 'running', tickMsForSpeed(speed), tick);
 
   const handleStart = useCallback(() => {
     setState((prev) =>
@@ -74,6 +76,7 @@ export default function App() {
         onTogglePause={handleTogglePause}
         onRestart={handleRestart}
       />
+      <SpeedControl speed={speed} onChange={setSpeed} />
     </main>
   );
 }
