@@ -1,10 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { GameBoard } from './components/GameBoard';
 import { GameControls } from './components/GameControls';
 import { Overlay } from './components/Overlay';
 import { ScoreBoard } from './components/ScoreBoard';
 import { SpeedControl } from './components/SpeedControl';
 import { useGameLoop } from './hooks/useGameLoop';
+import { useHighScore } from './hooks/useHighScore';
 import { useKeyboardDirection } from './hooks/useKeyboardDirection';
 import { DEFAULT_SPEED, tickMsForSpeed } from './logic/constants';
 import { advanceGame, createInitialState } from './logic/game';
@@ -15,6 +16,13 @@ import styles from './App.module.css';
 export default function App() {
   const [state, setState] = useState(createInitialState);
   const [speed, setSpeed] = useState(DEFAULT_SPEED);
+  const { highScore, recordScore } = useHighScore();
+
+  useEffect(() => {
+    if (state.status === 'gameOver') {
+      recordScore(state.score);
+    }
+  }, [state.status, state.score, recordScore]);
 
   const tick = useCallback(() => {
     setState((prev) => advanceGame(prev));
@@ -59,7 +67,7 @@ export default function App() {
 
   return (
     <main className={styles.app}>
-      <ScoreBoard score={state.score} status={state.status} />
+      <ScoreBoard score={state.score} highScore={highScore} status={state.status} />
       <div className={styles.boardWrap}>
         <GameBoard gridSize={state.gridSize} snake={state.snake} food={state.food} />
         <Overlay

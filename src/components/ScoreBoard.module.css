@@ -28,6 +28,10 @@
   line-height: 1;
 }
 
+.best {
+  color: #facc15;
+}
+
 .status {
   font-size: 0.875rem;
   font-weight: 600;
