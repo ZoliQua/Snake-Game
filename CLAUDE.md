@@ -54,6 +54,7 @@ src/
     ScoreBoard.tsx    # score + best + status
     GameControls.tsx  # start / pause / restart
     SpeedControl.tsx  # 1–10 range slider
+    WrapToggle.tsx    # wrap-walls on/off
     Overlay.tsx       # idle / paused / gameOver
   styles/
   App.tsx
@@ -81,6 +82,7 @@ type GameState = {
   status: GameStatus;
   score: number;
   gridSize: number;
+  wrapWalls: boolean;        // true: head wraps on torus; false: wall kills
 };
 ```
 
@@ -94,7 +96,7 @@ State machine: `idle → running → paused ↔ running → gameOver → (restar
 
 Required behavior: fixed grid, snake as coordinate array, random food that never spawns on a snake cell, keyboard input with no instant reverse, auto-tick movement, eating grows the snake and increments score, wall and self collisions end the game, full restart resets snake + food + direction + nextDirection + score + status.
 
-Shipped beyond the original v1 scope: user-controlled speed (1–10 slider, no in-game ramp) and localStorage-backed high score. Still out of scope unless asked: level progression, automatic speed ramp, sound, skins, mobile/touch controls.
+Shipped beyond the original v1 scope: user-controlled speed (1–10 slider, no in-game ramp), localStorage-backed high score, and a wrap-walls toggle (default on — head wraps on the torus instead of dying at the edge). Still out of scope unless asked: level progression, automatic speed ramp, sound, skins, mobile/touch controls.
 
 ---
 
