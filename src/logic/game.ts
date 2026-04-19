@@ -1,5 +1,5 @@
 import { INITIAL_STATE } from './constants';
-import { hitsSelf, hitsWall } from './collision';
+import { hitsSelf, hitsWall, wrapPosition } from './collision';
 import { isSamePosition, spawnFood } from './food';
 import { isOppositeDirection, moveSnake, nextHead } from './snake';
 import type { GameState } from './types';
@@ -13,11 +13,13 @@ export function advanceGame(state: GameState, rng: () => number = Math.random): 
     ? state.direction
     : state.nextDirection;
 
-  const head = nextHead(state.snake[0], direction);
+  const rawHead = nextHead(state.snake[0], direction);
 
-  if (hitsWall(head, state.gridSize)) {
+  if (!state.wrapWalls && hitsWall(rawHead, state.gridSize)) {
     return { ...state, direction, status: 'gameOver' };
   }
+
+  const head = state.wrapWalls ? wrapPosition(rawHead, state.gridSize) : rawHead;
 
   const willEat = isSamePosition(head, state.food);
   const survivingBody = willEat ? state.snake : state.snake.slice(0, -1);
@@ -33,6 +35,6 @@ export function advanceGame(state: GameState, rng: () => number = Math.random): 
   return { ...state, snake, food, direction, score };
 }
 
-export function createInitialState(): GameState {
-  return { ...INITIAL_STATE, snake: [...INITIAL_STATE.snake] };
+export function createInitialState(overrides: Partial<GameState> = {}): GameState {
+  return { ...INITIAL_STATE, snake: [...INITIAL_STATE.snake], ...overrides };
 }

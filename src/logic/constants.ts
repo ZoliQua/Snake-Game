@@ -25,6 +25,8 @@ export const INITIAL_SNAKE: Position[] = [
 
 export const INITIAL_FOOD: Position = { x: 14, y: 10 };
 
+export const DEFAULT_WRAP_WALLS = true;
+
 export const INITIAL_STATE: GameState = {
   snake: INITIAL_SNAKE,
   food: INITIAL_FOOD,
@@ -33,4 +35,5 @@ export const INITIAL_STATE: GameState = {
   status: 'idle',
   score: 0,
   gridSize: GRID_SIZE,
+  wrapWalls: DEFAULT_WRAP_WALLS,
 };

@@ -4,6 +4,7 @@ import { GameControls } from './components/GameControls';
 import { Overlay } from './components/Overlay';
 import { ScoreBoard } from './components/ScoreBoard';
 import { SpeedControl } from './components/SpeedControl';
+import { WrapToggle } from './components/WrapToggle';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useHighScore } from './hooks/useHighScore';
 import { useKeyboardDirection } from './hooks/useKeyboardDirection';
@@ -33,7 +34,7 @@ export default function App() {
   const handleStart = useCallback(() => {
     setState((prev) =>
       prev.status === 'idle' || prev.status === 'gameOver'
-        ? { ...createInitialState(), status: 'running' }
+        ? createInitialState({ status: 'running', wrapWalls: prev.wrapWalls })
         : prev,
     );
   }, []);
@@ -47,7 +48,13 @@ export default function App() {
   }, []);
 
   const handleRestart = useCallback(() => {
-    setState({ ...createInitialState(), status: 'running' });
+    setState((prev) =>
+      createInitialState({ status: 'running', wrapWalls: prev.wrapWalls }),
+    );
+  }, []);
+
+  const handleWrapChange = useCallback((wrapWalls: boolean) => {
+    setState((prev) => ({ ...prev, wrapWalls }));
   }, []);
 
   const handleDirection = useCallback((direction: Direction) => {
@@ -85,6 +92,7 @@ export default function App() {
         onRestart={handleRestart}
       />
       <SpeedControl speed={speed} onChange={setSpeed} />
+      <WrapToggle wrapWalls={state.wrapWalls} onChange={handleWrapChange} />
     </main>
   );
 }
