@@ -36,4 +36,5 @@ export const INITIAL_STATE: GameState = {
   score: 0,
   gridSize: GRID_SIZE,
   wrapWalls: DEFAULT_WRAP_WALLS,
+  speed: DEFAULT_SPEED,
 };

@@ -8,7 +8,7 @@ import { WrapToggle } from './components/WrapToggle';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useHighScore } from './hooks/useHighScore';
 import { useKeyboardDirection } from './hooks/useKeyboardDirection';
-import { DEFAULT_SPEED, tickMsForSpeed } from './logic/constants';
+import { tickMsForSpeed } from './logic/constants';
 import { advanceGame, createInitialState } from './logic/game';
 import { isOppositeDirection } from './logic/snake';
 import type { Direction } from './logic/types';
@@ -16,7 +16,6 @@ import styles from './App.module.css';
 
 export default function App() {
   const [state, setState] = useState(createInitialState);
-  const [speed, setSpeed] = useState(DEFAULT_SPEED);
   const { highScore, recordScore } = useHighScore();
 
   useEffect(() => {
@@ -29,12 +28,16 @@ export default function App() {
     setState((prev) => advanceGame(prev));
   }, []);
 
-  useGameLoop(state.status === 'running', tickMsForSpeed(speed), tick);
+  useGameLoop(state.status === 'running', tickMsForSpeed(state.speed), tick);
 
   const handleStart = useCallback(() => {
     setState((prev) =>
       prev.status === 'idle' || prev.status === 'gameOver'
-        ? createInitialState({ status: 'running', wrapWalls: prev.wrapWalls })
+        ? createInitialState({
+            status: 'running',
+            wrapWalls: prev.wrapWalls,
+            speed: prev.speed,
+          })
         : prev,
     );
   }, []);
@@ -49,12 +52,20 @@ export default function App() {
 
   const handleRestart = useCallback(() => {
     setState((prev) =>
-      createInitialState({ status: 'running', wrapWalls: prev.wrapWalls }),
+      createInitialState({
+        status: 'running',
+        wrapWalls: prev.wrapWalls,
+        speed: prev.speed,
+      }),
     );
   }, []);
 
   const handleWrapChange = useCallback((wrapWalls: boolean) => {
     setState((prev) => ({ ...prev, wrapWalls }));
+  }, []);
+
+  const handleSpeedChange = useCallback((speed: number) => {
+    setState((prev) => ({ ...prev, speed }));
   }, []);
 
   const handleDirection = useCallback((direction: Direction) => {
@@ -91,7 +102,7 @@ export default function App() {
         onTogglePause={handleTogglePause}
         onRestart={handleRestart}
       />
-      <SpeedControl speed={speed} onChange={setSpeed} />
+      <SpeedControl speed={state.speed} onChange={handleSpeedChange} />
       <WrapToggle wrapWalls={state.wrapWalls} onChange={handleWrapChange} />
     </main>
   );

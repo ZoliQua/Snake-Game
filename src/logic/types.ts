@@ -13,4 +13,5 @@ export type GameState = {
   score: number;
   gridSize: number;
   wrapWalls: boolean;
+  speed: number;
 };
