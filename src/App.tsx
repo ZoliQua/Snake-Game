@@ -5,6 +5,7 @@ import { Overlay } from './components/Overlay';
 import { ScoreBoard } from './components/ScoreBoard';
 import { SpeedControl } from './components/SpeedControl';
 import { WrapToggle } from './components/WrapToggle';
+import { useElapsedSeconds } from './hooks/useElapsedSeconds';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useHighScore } from './hooks/useHighScore';
 import { useKeyboardDirection } from './hooks/useKeyboardDirection';
@@ -16,7 +17,9 @@ import styles from './App.module.css';
 
 export default function App() {
   const [state, setState] = useState(createInitialState);
+  const [gameId, setGameId] = useState(0);
   const { highScore, recordScore } = useHighScore();
+  const elapsedSeconds = useElapsedSeconds(state.status === 'running', gameId);
 
   useEffect(() => {
     if (state.status === 'gameOver') {
@@ -31,15 +34,15 @@ export default function App() {
   useGameLoop(state.status === 'running', tickMsForSpeed(state.speed), tick);
 
   const handleStart = useCallback(() => {
-    setState((prev) =>
-      prev.status === 'idle' || prev.status === 'gameOver'
-        ? createInitialState({
-            status: 'running',
-            wrapWalls: prev.wrapWalls,
-            speed: prev.speed,
-          })
-        : prev,
-    );
+    setState((prev) => {
+      if (prev.status !== 'idle' && prev.status !== 'gameOver') return prev;
+      setGameId((id) => id + 1);
+      return createInitialState({
+        status: 'running',
+        wrapWalls: prev.wrapWalls,
+        speed: prev.speed,
+      });
+    });
   }, []);
 
   const handleTogglePause = useCallback(() => {
@@ -51,6 +54,7 @@ export default function App() {
   }, []);
 
   const handleRestart = useCallback(() => {
+    setGameId((id) => id + 1);
     setState((prev) =>
       createInitialState({
         status: 'running',
@@ -85,7 +89,12 @@ export default function App() {
 
   return (
     <main className={styles.app}>
-      <ScoreBoard score={state.score} highScore={highScore} status={state.status} />
+      <ScoreBoard
+        score={state.score}
+        highScore={highScore}
+        status={state.status}
+        elapsedSeconds={elapsedSeconds}
+      />
       <div className={styles.boardWrap}>
         <GameBoard gridSize={state.gridSize} snake={state.snake} food={state.food} />
         <Overlay
