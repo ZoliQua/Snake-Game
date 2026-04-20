@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
+  "author": "Zoltan Dul",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
