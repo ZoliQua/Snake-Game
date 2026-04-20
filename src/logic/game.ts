@@ -30,7 +30,7 @@ export function advanceGame(state: GameState, rng: () => number = Math.random): 
 
   const snake = moveSnake(state.snake, head, willEat);
   const food = willEat ? spawnFood(snake, state.gridSize, rng) : state.food;
-  const score = willEat ? state.score + 1 : state.score;
+  const score = willEat ? state.score + state.speed : state.score;
 
   return { ...state, snake, food, direction, score };
 }
