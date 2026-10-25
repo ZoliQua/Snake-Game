@@ -10,9 +10,10 @@
   - `npm run dev` — local dev server
   - `npm run build` — production build
   - `npm run preview` — preview production build
-  - `npm run typecheck` — `tsc --noEmit`
+  - `npm run typecheck` — `tsc -b`
   - `npm run lint` — ESLint
-  - `npm run test` — Vitest (only if a test setup actually exists)
+  - `npm test` — Vitest (logic + component tests, jsdom)
+  - `npm run check` — lint → typecheck → test → build (same as CI)
 - **Grid**: 20 × 20
 - **Tick**: derived from speed (1–10 scale; default level 6 = 150 ms). See `src/logic/constants.ts` `SPEED_TICK_MS`.
 - **Controls**: arrow keys + WASD, keyboard only for v1
@@ -38,28 +39,22 @@ Logic lives outside presentation. Do not bury game rules inside JSX.
 
 ```
 src/
-  logic/
-    constants.ts   # grid size, speed table (1–10), initial state
-    types.ts       # shared types
-    snake.ts       # next head, movement, growth helpers
-    food.ts        # random spawn, excludes every snake cell
-    collision.ts   # wall + self collision
-    game.ts        # advanceGame(state) — tick progression, scoring, transitions
-  hooks/
-    useGameLoop.ts           # interval runs only while status === 'running'; no stale closures
-    useKeyboardDirection.ts  # arrows + WASD; blocks 180° reversal; single listener; preventDefault on arrows
-    useHighScore.ts          # localStorage-backed best score; recordScore only writes when higher
-  components/
-    GameBoard.tsx     # grid + snake + food
-    ScoreBoard.tsx    # score + best + status
-    GameControls.tsx  # start / pause / restart
-    SpeedControl.tsx  # 1–10 range slider
-    WrapToggle.tsx    # wrap-walls on/off
-    Overlay.tsx       # idle / paused / gameOver
-  styles/
-  App.tsx
-  main.tsx
+  arcade/        # VENDORED shared kit from Arcade-Game-Center/packages/kit — never edit here
+  logic/         # constants, types, snake, food, collision, game (advanceGame), autopilot, persist
+  hooks/         # useGameLoop, useKeyboardDirection
+  components/    # GameBoard (full + mini), SpeedControl, WrapToggle
+  demo/          # SnakeDemo — landing-page attract mode
+  SnakeGame.tsx  # embeddable game, ArcadeGameProps
+  App.tsx        # standalone page: <ArcadeShell gameId="snake"><SnakeGame/></ArcadeShell>
+  main.tsx       # entry, imports arcade/arcade.css once
+  index.ts       # package entry for Arcade-Game-Center
 ```
+
+Stats, best score, session autosave, theme, score panel and overlays come from `src/arcade/`
+(`useArcadeRun`, `useSessionAutosave`, `useRestoredSession`, `StatPanel`, `GameOverlay`, …).
+Change the kit only in Arcade-Game-Center and sync it (`node scripts/sync-games.mjs kit`).
+The same `src/` is mirrored into `Arcade-Game-Center/apps/snake/` — keep them identical
+(`node scripts/sync-games.mjs check` there).
 
 Use this layout only after confirming what is already on disk. If the repo diverges, follow the existing convention and flag the divergence — do not silently restructure.
 
@@ -158,3 +153,12 @@ End every meaningful change with:
 ---
 
 **Guiding principle**: correctness over speed, verification over confidence, truth over fluency, small safe diffs over large rewrites. When in doubt — inspect more, assume less, change less, state uncertainty clearly.
+
+---
+
+## Git & Commit Rules
+
+- Commit **only** as `Zoltán Dul <zoltan.dul@gmail.com>` (the global git identity).
+- **Never** add `Co-Authored-By: Claude …`, "Generated with Claude Code" or any AI attribution
+  to commit messages or pull-request descriptions.
+- Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).

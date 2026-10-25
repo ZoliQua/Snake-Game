@@ -1,7 +1,9 @@
 # 🐍 Snake
 
-A minimal, type-safe Snake game built with **React 18**, **Vite**, and **TypeScript**. Keyboard-first, grid-based, no canvas, no external game engine.
+A minimal, type-safe Snake game built with **React 18**, **Vite** and **TypeScript** — keyboard-first, grid-based DOM, no canvas, no game engine.
+Runs on its own **and** as one of the six games of **[Zoltan's Arcade](https://github.com/ZoliQua/Arcade-Game-Center)**.
 
+[![CI](https://github.com/ZoliQua/Snake-Game/actions/workflows/ci.yml/badge.svg)](https://github.com/ZoliQua/Snake-Game/actions/workflows/ci.yml)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![node](https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white)
 ![react](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white)
@@ -12,159 +14,157 @@ A minimal, type-safe Snake game built with **React 18**, **Vite**, and **TypeScr
 
 ## 📑 Table of contents
 
+- [The Zoltan's Arcade family](#-the-zoltans-arcade-family)
 - [Features](#-features)
+- [Quick start](#-quick-start)
+- [Controls](#%EF%B8%8F-controls)
+- [Scoring & stats](#-scoring--stats)
+- [Autosave & resume](#-autosave--resume)
+- [Embedding in Arcade-Game-Center](#-embedding-in-arcade-game-center)
 - [How it works](#-how-it-works)
-- [Requirements](#-requirements)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Controls](#-controls)
-- [Scoring](#-scoring)
-- [Wall wrap](#-wall-wrap)
 - [Scripts](#-scripts)
-- [Architecture](#-architecture)
-- [License](#-license)
+- [Architecture](#%EF%B8%8F-architecture)
+- [Contributing](#-contributing)
+- [License](#%EF%B8%8F-license)
+
+## 🕹️ The Zoltan's Arcade family
+
+Every game is a standalone repo that also plugs into the portal. They share one design system, one scoring model and one save format through the vendored [`src/arcade/`](./src/arcade) kit.
+
+| Game | Repo | Genre |
+| --- | --- | --- |
+| 🏠 **Arcade portal** | [Arcade-Game-Center](https://github.com/ZoliQua/Arcade-Game-Center) | All games in one place, live demos, stats, leaderboard |
+| 🧱 Tetris | [Tetris-Game](https://github.com/ZoliQua/Tetris-Game) | Arcade |
+| 🐍 **Snake** (this repo) | [Snake-Game](https://github.com/ZoliQua/Snake-Game) | Reflex |
+| 🔢 2048 | [2048-Game](https://github.com/ZoliQua/2048-Game) | Puzzle |
+| 🟡 Pac-Man | [Pac-Man-Game](https://github.com/ZoliQua/Pac-Man-Game) | Maze |
+| ⚫ Gomoku | [Gomoku-Game](https://github.com/ZoliQua/Gomoku-Game) | Strategy |
+| 🦷 Tic-Tac-Toe | [Tic-Tac-Toe-Game](https://github.com/ZoliQua/Tic-Tac-Toe-Game) | Duel |
 
 ## ✨ Features
 
-- 🎮 **Classic Snake** on a fixed 20×20 grid
-- ⚡ **Adjustable speed** — 1–10 slider, from leisurely to frantic
-- 🎯 **Speed-scaled scoring** — 1 pellet is worth N points at speed N
-- 🏆 **Persistent high score** kept in `localStorage` across refreshes
-- ⏱️ **Real-time elapsed timer** (`mm:ss`) that pauses with the game
-- 🧱 **Wall wrap toggle** — play classic mode or torus mode
-- ⌨️ **Keyboard-first** — arrows + WASD, Space/P to pause, R to restart
-- 🧼 **Pure game logic** separated from UI; presentation is dumb on purpose
-- 🎨 **CSS Modules** — no runtime CSS-in-JS, no layout jitter
-- 🔒 **Type-safe** — strict TypeScript with no `any` escape hatches in game code
+- 🎮 **Classic Snake** on a 20×20 grid; filling the whole board counts as a win
+- ⚡ **Adjustable speed** (1–10) with speed-scaled scoring
+- 🧱 **Wall wrap toggle** — torus mode (default) or classic walls
+- 💾 **Autosave & resume** — close the tab mid-run and pick up where you left off
+- 🏆 **Unified arcade stats** — best score, plays, total time, shared with the portal
+- ⏱️ **Pause-aware run timer**
+- 🌗 **Dark / light theme** shared with every arcade game (press **T**)
+- 🤖 **Attract-mode demo** (`<SnakeDemo />`) — the real engine driven by a BFS autopilot, shown on the portal's landing page
+- ⌨️ **Keyboard-first**; hotkeys are ignored while you type in a form field
+- 🧪 **Tested** — pure-logic unit tests plus component tests with Vitest + Testing Library
 
-## 🧠 How it works
+## 🚀 Quick start
 
-The game is a simple state machine:
-
-```
-idle → running ↔ paused → gameOver → (restart) → running
-```
-
-A single pure function, `advanceGame(state): GameState`, owns one tick of progression:
-
-1. Resolve the queued direction (blocks 180° reversal against the **last applied** direction, not the last input).
-2. Compute the next head position.
-3. Wrap the head across the board **or** trigger `gameOver` on wall contact, depending on the Wrap walls setting.
-4. Detect food, then self-collision against the correct post-move body snapshot.
-5. Either grow the snake and respawn food, or shift the tail.
-6. Award `state.speed` points if the pellet was eaten.
-
-The render loop is a React hook (`useGameLoop`) that runs a fresh `setInterval` only while `status === 'running'`. A ref to the latest callback prevents the classic stale-closure bug. Input is captured by a single `keydown` listener (`useKeyboardDirection`) that calls `preventDefault()` on arrows so the page never scrolls mid-play.
-
-## 📦 Requirements
-
-- 🟢 **Node ≥ 20**
-- 📦 **npm** (the lockfile is committed as `package-lock.json`)
-
-## 🚀 Installation
+Requires **Node ≥ 20** and npm.
 
 ```bash
 git clone https://github.com/ZoliQua/Snake-Game.git
 cd Snake-Game
 npm install
+npm run dev          # http://localhost:5173
 ```
 
-## 🕹️ Usage
-
-Start the dev server:
-
-```bash
-npm run dev
-```
-
-Then open `http://localhost:5173` in a modern desktop browser.
-
-For a production build:
-
-```bash
-npm run build
-npm run preview
-```
+Production build: `npm run build && npm run preview`. The build uses relative asset paths, so `dist/` can be served from any sub-folder.
 
 ## ⌨️ Controls
 
-| Key                     | Action            |
-| ----------------------- | ----------------- |
-| ⬆️ / ⬇️ / ⬅️ / ➡️       | Move              |
-| **W** / **A** / **S** / **D** | Move (alternate) |
-| **Space** / **P**       | Pause / Resume    |
-| **R**                   | Restart           |
+| Key | Action |
+| --- | --- |
+| ⬆️ ⬇️ ⬅️ ➡️ / **W A S D** | Steer |
+| **Space** / **Enter** | Start · pause · resume |
+| **P** / **Esc** | Pause / resume |
+| **R** | Restart |
+| **T** | Toggle dark / light theme (standalone page) |
 
-## 🎯 Scoring
+## 🎯 Scoring & stats
 
-Each pellet awards **N points at speed level N**. Speed changes apply from the next pellet onwards — past pellets keep the points they were worth when eaten.
+Each pellet is worth **N points at speed N** (speed changes apply from the next pellet on).
 
-| Speed | Tick     | Points per pellet |
-| ----: | -------: | ----------------: |
-| 1     | 300 ms   | 1                 |
-| 2     | 260 ms   | 2                 |
-| 3     | 225 ms   | 3                 |
-| 4     | 195 ms   | 4                 |
-| 5     | 170 ms   | 5                 |
-| **6** (default) | **150 ms** | **6**   |
-| 7     | 130 ms   | 7                 |
-| 8     | 110 ms   | 8                 |
-| 9     | 90 ms    | 9                 |
-| 10    | 70 ms    | 10                |
+| Speed | 1 | 2 | 3 | 4 | 5 | **6** | 7 | 8 | 9 | 10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Tick (ms) | 300 | 260 | 225 | 195 | 170 | **150** | 130 | 110 | 90 | 70 |
+| Points / pellet | 1 | 2 | 3 | 4 | 5 | **6** | 7 | 8 | 9 | 10 |
 
-The **best score** is persisted to `localStorage` under the key `snake.highScore`. Clear your site data to reset it.
+When a run ends the kit records it once in `localStorage` under `arcade.stats.snake`
+(`best`, `plays`, `wins`, `totalScore`, `totalSeconds`, `lastScore`, `lastPlayedAt`).
+The legacy `snake.highScore` key is kept in sync, so older builds keep their record.
 
-## 🧱 Wall wrap
+## 💾 Autosave & resume
 
-- **On** (default): the head wraps around the board torus-style — exit right, enter left.
-- **Off**: touching a wall ends the game.
+While a run is in progress it is saved about once a second and whenever the page is hidden or the game is unmounted
+(key `arcade.session.snake`, schema-versioned and validated on load). Reloading shows **Welcome back** with the restored
+run paused. **Discard** next to the *Autosaved* badge throws the save away. Finished runs clear their save automatically.
 
-Either way, self-collision is always fatal — wrapping into your own tail will still kill you.
+## 🧩 Embedding in Arcade-Game-Center
+
+```tsx
+import { SnakeGame, SnakeDemo } from '@arcade/snake';
+
+<SnakeGame
+  embedded                                   // hide the page title; the portal shows it
+  onGameOver={(score) => submitScore('snake', score)}
+  onStatusChange={({ status, score, seconds }) => updateHeader(status, seconds)}
+/>
+<SnakeDemo active={cardIsVisible} />          // landing-page attract mode
+```
+
+Both components follow the shared `ArcadeGameProps` / `ArcadeDemoProps` contract from `src/arcade/types.ts`.
+
+## 🧠 How it works
+
+State machine: `idle → running ↔ paused → gameOver → (restart) → running`.
+
+A single pure function, `advanceGame(state, rng)`, owns one tick:
+
+1. Resolve the queued direction (180° reversals are blocked against the **last applied** direction).
+2. Compute the next head; wrap it or end the run on wall contact.
+3. Check self-collision against the body **after** the tail moves (entering the cell the tail leaves is legal).
+4. Grow and score on food, otherwise shift the tail; a full board ends the run as a win.
+
+`useGameLoop` runs an interval only while running, reading the latest callback from a ref (no stale closures).
+`useKeyboardDirection` attaches one window listener for the component's lifetime.
 
 ## 🧪 Scripts
 
-| Script                | Purpose                            |
-| --------------------- | ---------------------------------- |
-| `npm run dev`         | Start the local dev server (Vite)  |
-| `npm run build`       | Type-check and produce a prod bundle |
-| `npm run preview`     | Preview the production build       |
-| `npm run typecheck`   | Run `tsc --noEmit`                 |
-| `npm run lint`        | Run ESLint across the project      |
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Vite dev server |
+| `npm run build` | Type-check (`tsc -b`) and production build |
+| `npm run preview` | Serve the production build |
+| `npm run typecheck` | `tsc -b` |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest (logic + component tests) |
+| `npm run check` | lint → typecheck → test → build (what CI runs) |
 
 ## 🏗️ Architecture
 
-Logic lives outside presentation. Game rules never leak into JSX.
-
 ```
 src/
-  logic/        pure game rules
-    types.ts      shared types (Position, Direction, GameState, ...)
-    constants.ts  grid size, speed table, initial state
-    snake.ts      next head, direction helpers, move
-    food.ts       spawn excluding snake cells
-    collision.ts  wall, self, wrap
-    game.ts       advanceGame(state) tick + createInitialState(overrides)
-  hooks/
-    useGameLoop.ts          interval bound to `running`; no stale closures
-    useKeyboardDirection.ts arrows + WASD + space/P + R
-    useHighScore.ts         localStorage-backed best score
-    useElapsedSeconds.ts    real-time mm:ss elapsed counter
-  components/
-    GameBoard.tsx      grid + snake + food
-    ScoreBoard.tsx     time + score + best + status
-    GameControls.tsx   start / pause / restart
-    SpeedControl.tsx   1–10 range slider
-    WrapToggle.tsx     wrap walls on/off
-    Overlay.tsx        idle / paused / gameOver
-  styles/
-  App.tsx             state machine + wiring
-  main.tsx            React entry
+  arcade/            vendored Zoltan's Arcade kit — do not edit here (see its README)
+  logic/             pure game rules
+    types.ts constants.ts snake.ts food.ts collision.ts
+    game.ts          advanceGame + createInitialState + isBoardFull
+    autopilot.ts     BFS steering for the demo
+    persist.ts       runtime validation of saved sessions
+  hooks/             useGameLoop, useKeyboardDirection
+  components/        GameBoard (full + mini), SpeedControl, WrapToggle
+  demo/SnakeDemo.tsx landing-page attract mode
+  SnakeGame.tsx      the embeddable game (ArcadeGameProps)
+  App.tsx            standalone page: <ArcadeShell><SnakeGame/></ArcadeShell>
+  main.tsx           entry; loads the shared arcade.css once
+  index.ts           package entry used by Arcade-Game-Center
 ```
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md), the [Code of Conduct](./CODE_OF_CONDUCT.md) and [SECURITY.md](./SECURITY.md).
+Contributors are listed in [CONTRIBUTORS.md](./CONTRIBUTORS.md); changes in [CHANGELOG.md](./CHANGELOG.md).
 
 ## ⚖️ License
 
-Released under the [MIT License](./LICENSE). © 2026 Zoltan Dul.
+[MIT](./LICENSE) © 2026 Zoltán Dul
 
 ---
 
-<p align="center">Made with ❤️ by Zoltan Dul</p>
+<p align="center">Made with ❤️ by Zoltán Dul · part of <a href="https://github.com/ZoliQua/Arcade-Game-Center">Zoltan's Arcade</a></p>
