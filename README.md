@@ -1,7 +1,9 @@
 # 🐍 Snake
 
-A minimal, type-safe Snake game built with **React 18**, **Vite** and **TypeScript** — keyboard-first, grid-based DOM, no canvas, no game engine.
-Runs on its own **and** as one of the fourteen games of **[Zoltan's Arcade](https://github.com/ZoliQua/Arcade-Game-Center)**.
+**English** · [Deutsch](README.de.md) · [Magyar](README.hu.md)
+
+A minimal, type-safe Snake game built with **React 18**, **Vite** and **TypeScript** — keyboard- and touch-friendly, grid-based DOM, no canvas, no game engine.
+Runs on its own **and** as one of the fifteen games of **[Zoltan's Arcade](https://github.com/ZoliQua/Arcade-Game-Center)**.
 
 [![CI](https://github.com/ZoliQua/Snake-Game/actions/workflows/ci.yml/badge.svg)](https://github.com/ZoliQua/Snake-Game/actions/workflows/ci.yml)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -48,6 +50,7 @@ Every game is a standalone repo that also plugs into the portal. They share one 
 | 💣 Minesweeper | [Minesweeper-Game](https://github.com/ZoliQua/Minesweeper-Game) | Logic |
 | ♠️ Solitaire | [Solitaire-Game](https://github.com/ZoliQua/Solitaire-Game) | Cards |
 | 🎴 Ulti | [Ulti-Game](https://github.com/ZoliQua/Ulti-Game) | Cards |
+| 🂡 Snapszer | [Snapszer-Game](https://github.com/ZoliQua/Snapszer-Game) | Cards |
 
 ## ✨ Features
 
@@ -62,6 +65,10 @@ Every game is a standalone repo that also plugs into the portal. They share one 
 - 🦷 **Dental mode** — a „Fogas mód” / "Dental mode" / „Zahnmodus” toggle in the settings, off by default (or `?dental=1`), shared across the whole arcade: the head is a smiling tooth, the body a row of teeth and the food a toothpaste drop; presentation only
 - 🤖 **Attract-mode demo** (`<SnakeDemo />`) — the real engine driven by a BFS autopilot, shown on the portal's landing page
 - ⌨️ **Keyboard-first**; hotkeys are ignored while you type in a form field
+- 📖 **Rules dialog** with a diagram (opening it pauses the run)
+- 🏁 **Finish early** — end a run on purpose and put the current score on the leaderboard
+- 📱 **Touch play** — swipe on the board, on-screen arrow buttons, tap to start
+- ⛶ **Full screen** button (CSS full-screen mode on iPhone)
 - 🧪 **Tested** — pure-logic unit tests plus component tests with Vitest + Testing Library
 
 ## 🚀 Quick start
@@ -86,6 +93,8 @@ Production build: `npm run build && npm run preview`. The build uses relative as
 | **P** / **Esc** | Pause / resume |
 | **R** | Restart |
 | **T** | Toggle dark / light theme (standalone page) |
+
+**On a phone:** swipe anywhere on the board to turn (turns are queued like key presses), or use the four arrow buttons under the board; tap the board to start. The **Rules**, **Finish** and **Full screen** buttons are in the Game panel. On iPhone, add the page to the Home Screen for a view without browser bars.
 
 ## 🎯 Scoring & stats
 
@@ -113,7 +122,7 @@ import { SnakeGame, SnakeDemo } from '@arcade/snake';
 
 <SnakeGame
   embedded                                   // hide the page title; the portal shows it
-  onGameOver={(score) => submitScore('snake', score)}
+  onGameOver={(score, info) => submitScore('snake', score)}   // info.finished: ended early with Finish
   onStatusChange={({ status, score, seconds }) => updateHeader(status, seconds)}
 />
 <SnakeDemo active={cardIsVisible} />          // landing-page attract mode
@@ -160,6 +169,7 @@ src/
   hooks/             useGameLoop, useKeyboardDirection
   components/        GameBoard (full + mini), SpeedControl, WrapToggle
   demo/SnakeDemo.tsx landing-page attract mode
+  rules.tsx          Rules dialog content and diagram
   SnakeGame.tsx      the embeddable game (ArcadeGameProps)
   App.tsx            standalone page: <ArcadeShell><SnakeGame/></ArcadeShell>
   main.tsx           entry; loads the shared arcade.css once

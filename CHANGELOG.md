@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] — 2026-11-14
+
+### Added
+
+- Rules dialog with a diagram of how the snake grows (opening it pauses the run).
+- Finish early: ends the run on purpose and ranks the current score ("Finished early" on the game-over card).
+- Touch controls: swipe on the board, on-screen arrow buttons, tap the board to start; the board and layout fit 360 px portrait phones.
+- Full-screen button (CSS full-screen mode on iPhone); `viewport-fit=cover` for the notch.
+- README in English, German and Hungarian; the family table lists all fifteen games, including Snapszer.
+
 ## [2.2.1] — 2026-11-14
 
 ### Changed
